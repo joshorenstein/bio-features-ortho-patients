@@ -1,0 +1,12 @@
+"a$byClass"
+"Sensitivity" 0.846153846153846
+"Specificity" 0.96
+"Pos Pred Value" 0.977777777777778
+"Neg Pred Value" 0.75
+"Precision" 0.977777777777778
+"Recall" 0.846153846153846
+"F1" 0.907216494845361
+"Prevalence" 0.675324675324675
+"Detection Rate" 0.571428571428571
+"Detection Prevalence" 0.584415584415584
+"Balanced Accuracy" 0.903076923076923

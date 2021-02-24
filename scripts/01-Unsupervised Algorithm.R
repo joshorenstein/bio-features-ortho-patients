@@ -30,5 +30,5 @@ df_clust$df.hclust.clusters <- as.character(df_clust$df.hclust.clusters)
 # Compare cluster membership to actual diagnoses
 summary <- df %>% ungroup() %>%  bind_cols(df_clust) %>% 
   rename(cluster=df.hclust.clusters)
-names(summary)
+head(summary)
 

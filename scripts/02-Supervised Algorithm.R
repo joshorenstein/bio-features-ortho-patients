@@ -1,6 +1,7 @@
 #Load R packages
+install.packages('reshape')
 Packages <- c("here", "caret", "rpartScore", "tidyverse", "recipes","C50","yardstick","e1071",
-              "rattle","rpart.plot")
+              "rattle","rpart.plot","reshape")
 
 lapply(Packages, library, character.only = TRUE)
 
@@ -90,11 +91,7 @@ fancyRpartPlot(cart_model$finalModel)
 dev.copy(pdf,'charts/regression-tree-model.pdf')
 dev.off()
 
-#plot the neural net model
-devtools::source_url('https://gist.githubusercontent.com/fawda123/7471137/raw/466c1474d0a505ff044412703516c34f1a4684a5/nnet_plot_update.r')
-plot.nnet(nnet_model,pos.col='darkgreen',neg.col='darkblue',alpha.val=0.7,rel.rsc=15,
-          circle.cex=6,cex=.8,
-          circle.col='brown')
+plot(nnet_model$finalModel)
 dev.copy(pdf,'charts/neural-net-model.pdf')
 dev.off()
 # Create new columns with results from training
@@ -156,20 +153,23 @@ confusionMatrix(predict(cart_model,testing),
                 testing$class) #abnormal predictions are good, normal predictions are coin flip
 
 #highest balanced accuracy
-confusionMatrix(predict(svm_model,testing),
+a <- confusionMatrix(predict(svm_model,testing),
                 testing$class) #normal predictions much improved from cart, abnormal predictions really strong
+a
+b <- as.table(a)
+b %>% write.table("results/support_vector.csv")
 #high balanced accuracy
 
 confusionMatrix(predict(nnet_model,testing),
-                testing$class) #similar results to svm but slightly better at predicting normal
-
+                testing$class) #similar results to svm
+names(testing_results)
 names(testing_results)
 #Move forward with the support vector machine as our model
-results <- testing_results %>% select(-c(Decision_Tree,Random_Forest,
-                                         Gradient_Boost,Support_Vector,C50)) %>% 
-  rename(prediction=Neural_Net)
+results <- testing_results %>% 
+  select(-c(Decision_Tree,Random_Forest,Gradient_Boost,Neural_Net,C50)) %>% 
+  dplyr::rename(prediction=Support_Vector)
 
-names(results)
+
 results %>% 
   gather(key = "type","degrees",1:6)
 medians <- results %>% 
@@ -182,7 +182,7 @@ medians <- results %>%
   # gather("quartile","value",3:5) 
 
 medians %>% write_csv('results/results.csv')
-library(nnet)
+
 #estimate weights of the support vector model
 fit2 <- svm(class ~ ., data = training)
 w <- t(fit2$coefs) %*% fit2$SV                 # weight vectors
@@ -197,12 +197,12 @@ w1 <- w %>%
   select(-w) %>% 
   write_csv('results/variable_importance_svm.csv')
 
+str(w1)
 ## set the levels in order we want
-theTable <- within(w1, 
-                   variable_importance <- factor(variable_importance, 
-                                      levels=names(sort(table(variable_importance), 
-                                                        decreasing=TRUE))))
-## plot
-ggplot(theTable,aes(x=Type,y=variable_importance)+geom_bar(stat="identity")
 
-       
+## plot
+q <- ggplot(w1, aes(y = reorder(Type, variable_importance), x = variable_importance)) +
+  geom_bar(stat = "identity",fill="gray")
+q
+
+ggsave("results/variable_importance.pdf",width=6,height=6)
