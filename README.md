@@ -1,9 +1,9 @@
 ### Biomechanical features impacting presence of hernia in orthopedic patients
-A Mixed effect neural network model based on biomechanical features of orthopedic patients. Five features are given; pelvic incidence,
+A mixed effect neural network model based on biomechanical features of orthopedic patients. Five features are given; pelvic incidence,
 pelvic tilt, lumbar lordosis, sacral slope and the degree of spondylolisthesis  <br>
 
 ###### The model:
-An unsupervised machine learning model is used to classify each of the patients into four clusters. These clusters are then used as a fixed effect in the supervised machine learning models. Six popular machine learning algorithms are fit to the training and test data set with the goal of predicting whether a hernia is present which is designated by being 
+An unsupervised machine learning model is used to classify each of the patients into four clusters. A quick exploratory analysis of the data shows that degree of spondylolisthesis has a major impact on the dependent variable. These clusters are then used as a fixed effect in the supervised machine learning models with the goal of reducing overfit that could be caused by the degree of spondylolisthesis having great variable importance. <br>. Six popular machine learning algorithms are fit to the training and test data set with the goal of predicting whether a hernia is present which is designated by being 
 either normal or abnormal. Those models are Regression Trees, Random Forest, Support Vector Machine (with and without fixed effect), C5.0, Gradient Boost and Neural Network. <br>
 
 ##### Results:
