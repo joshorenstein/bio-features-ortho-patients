@@ -1,8 +1,8 @@
-model,2,test,training,diff
-Support_Vector,2,88,82,6
-C50,2,87,100,-13
-Random_Forest,2,87,100,-13
-Neural_Net,2,86,85,1
-Support_Vector_No,2,86,82,4
-Gradient_Boost,2,83,89,-6
-Decision_Tree,2,82,86,-4
+model,test,training,diff
+Support_Vector,88.3,82.3,6
+C50,87,100,-13
+Random_Forest,87,100,-13
+Neural_Net,85.7,85.3,0.4000000000000057
+Support_Vector_No,85.7,81.9,3.799999999999997
+Gradient_Boost,83.1,88.8,-5.700000000000003
+Decision_Tree,81.8,86.2,-4.400000000000006
