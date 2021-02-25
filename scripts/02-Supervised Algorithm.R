@@ -155,15 +155,17 @@ confusionMatrix(predict(cart_model,testing),
 #highest balanced accuracy
 a <- confusionMatrix(predict(svm_model,testing),
                 testing$class) #normal predictions much improved from cart, abnormal predictions really strong
-a
+
 b <- as.table(a)
-b %>% write.table("results/support_vector.csv")
+c <- as.data.frame(a$byClass)
+
+b %>% write.table("results/predictions.csv")
+c %>% write.table("results/model_accuracy.csv")
 #high balanced accuracy
 
 confusionMatrix(predict(nnet_model,testing),
                 testing$class) #similar results to svm
-names(testing_results)
-names(testing_results)
+
 #Move forward with the support vector machine as our model
 results <- testing_results %>% 
   select(-c(Decision_Tree,Random_Forest,Gradient_Boost,Neural_Net,C50)) %>% 
@@ -194,15 +196,13 @@ w <- w %>% mutate(w=round(w,1))
 w
 w1 <- w %>% 
   mutate(w, variable_importance = round(w / sum(w),2)*100) %>% 
-  select(-w) %>% 
-  write_csv('results/variable_importance_svm.csv')
-
-str(w1)
+  select(-w)
 ## set the levels in order we want
-
+library(ggthemes)
 ## plot
 q <- ggplot(w1, aes(y = reorder(Type, variable_importance), x = variable_importance)) +
-  geom_bar(stat = "identity",fill="gray")
+  geom_bar(stat = "identity",fill="gray") + theme_tufte() + 
+  labs(x="Variable Importance",y="Feature")
 q
 
-ggsave("results/variable_importance.pdf",width=6,height=6)
+ggsave("results/variable_importance.pdf",width=4,height=4)
