@@ -155,16 +155,18 @@ r1 <- f(testing_results,"Neural_Net")
 s1 <- f(testing_results,"Support_Vector_No")
 #see the train/test kappa (accuracy vs randomness)
 models <- bind_rows(m,n,o,p,q,r,s) %>% filter(.metric=="accuracy")
-m <- as.data.frame(models) %>% mutate(data="training")
+m <- as.data.frame(models) %>% mutate(data="training accuracy")
 models1 <- bind_rows(m1,n1,o1,p1,q1,r1,s1) %>% filter(.metric=="accuracy")
-m1 <- as.data.frame(models1) %>% mutate(data="test") %>% bind_rows(m) %>% 
+m1 <- as.data.frame(models1) %>% mutate(data="test accuracy") %>% bind_rows(m) %>% 
   select(data,model,.estimate) %>% 
-  mutate(.estimate=.estimate*100) %>% 
+  mutate(.estimate=round(.estimate*100,1)) %>% 
   arrange(model,desc(data)) %>% 
   group_by(model) %>% 
   spread(data,.estimate) %>% 
-  mutate(diff=test-training) %>% 
+  mutate(diff=round(test-training,1)) %>% 
   arrange(desc(test))
+m2
+
 m1 %>% write_csv("results/all_model_performance.csv")
  
 #Random Forest & Gradient Boost likely overfit, Support Vector only model that performed better on test than train 
