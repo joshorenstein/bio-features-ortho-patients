@@ -2,11 +2,10 @@
 Mixed effect neural network model based on biomechanical features of orthopedic patients. Six features are given <br>
 
 ###### The model:
-An unsupervised machine learning model to classify each of the patients into four clusters. These clusters are used as a fixed effect in the supervised machine learning models. <br>
-6 popular machine learning algorithms are fit to the training and test data set with the goal of predicting whether a hernia is present which is designated by being 
+An unsupervised machine learning model to classify each of the patients into four clusters. These clusters are used as a fixed effect in the supervised machine learning models. 6 popular machine learning algorithms are fit to the training and test data set with the goal of predicting whether a hernia is present which is designated by being 
 either normal or abnormal.  <br>
 
-The following models were fit: Regression Trees, Random Forest, Support Vector Machine (with and without fixed effect), C5.0, Gradient Boost and Neural Network. <br>
+The following models are fit: Regression Trees, Random Forest, Support Vector Machine (with and without fixed effect), C5.0, Gradient Boost and Neural Network. <br>
 
 ##### Results:
 ```
@@ -21,16 +20,21 @@ model             training_accuracy test_accuracy difference
 7 Support_Vector_No              81.9          85.7       3.80
 ```
 
-
-
-In the supervised algorithms, the best models on predicting the test data were Support Vector Machine, C5.0 and Random Forest. The C5.0 and Random Forest had 100% accuracy on the training data likely due to the models being overfit. The neural network had the most stable accuracy, ie, the smallest difference between the predictions of the training and test sets. A regression tree model is always worth considering as it is the easiest model to interpret; however, it's performance on the test set was near the bottom. It's fairly easy to extract variable importance from the Support Vector Machine models which makes it useful for explaining findings to non-technical people as well. <br/>
-
-The Neural Network is the model I would most likely fit on this data moving forward. It is not the easiest data to visualize, but given its stable results and high accuracy, among the models tested, I think it is the best fit for this data. <br/>
-
 [Median Biomechanics by Person Type](https://github.com/joshorenstein/bio-features-ortho-patients/blob/master/results/results.csv) <br/>
 [Regression Tree](https://github.com/joshorenstein/bio-features-ortho-patients/blob/master/charts/regression-tree-model.pdf) <br/>
 [SVM Variable Importance](https://github.com/joshorenstein/bio-features-ortho-patients/blob/master/results/variable_importance.pdf) <br/>
 [Neural Network](https://github.com/joshorenstein/bio-features-ortho-patients/blob/master/charts/neural-net-model.pdf) <br/>
+
+
+###### Connclusions:
+* In the supervised algorithms, the best models on predicting the test data were Support Vector Machine, C5.0 and Random Forest. 
+* The C5.0 and Random Forest had 100% accuracy on the training data likely due to the models being overfit. 
+* The neural network had the most stable accuracy, ie, the smallest difference between the predictions of the training and test sets. 
+* A regression tree model is always worth considering as it is the easiest model to interpret; however, it's performance on the test set was near the bottom. 
+* It's fairly easy to extract variable importance from the Support Vector Machine models which makes it useful for explaining findings to non-technical people as well. <br/>
+
+The Neural Network is the model I would most likely fit on this data moving forward. It is not the easiest data to visualize, but given its stable results and high accuracy, among the models tested, I think it is the best fit for this data. <br/>
+
 
 ###### The data:
 1) Pelvic incidence is defined as the angle between a line perpendicular to the sacral plate at its midpoint and a line connecting this point to the femoral head axis. <br>
