@@ -1,12 +1,12 @@
 #Load R packages
-install.packages('reshape')
+
 Packages <- c("here", "caret", "rpartScore", "tidyverse", "recipes","C50","yardstick","e1071",
               "rattle","rpart.plot","reshape")
 
 lapply(Packages, library, character.only = TRUE)
 
 #Load the data
-df <- read_csv("data/column_3C_weka.csv")
+#df <- read_csv("data/column_3C_weka.csv")
 df <- summary
 
 #Just focus on Normal vs Abnormal as the dependent variable
@@ -26,12 +26,14 @@ bp <- ggplot(tidy, aes(x=class, y=degrees), col=class) +
   geom_boxplot()
 
 b_plot <- bp + facet_grid(. ~ type)
-
+b_plot
 ggsave("charts/box_plot.pdf",width=10,height=4)
 ??ggsave
+names(df)
+df <- df %>% select(class,cluster,everything())
 #Recursive Feature Elimintation - Accuracy and Kappa at its greatest with all six variables
 control <- rfeControl(functions=rfFuncs, method="cv", number=2)
-results <- rfe(df[, 1:6], df[[7]], sizes=c(1:6), rfeControl=control)
+results <- rfe(df[, 2:8], df[[1]], sizes=c(1:7), rfeControl=control)
 results
 
 #keep datapoints that will be used in model
@@ -68,6 +70,12 @@ svm_model <- train(class~pelvic_incidence+pelvic_tilt+lumbar_lordosis_angle+
                    data = training,
                    trControl = ctrl)
 
+#svm with no fixed effect
+svm_model_no <- train(class~pelvic_incidence+pelvic_tilt+lumbar_lordosis_angle+
+                     sacral_slope+pelvic_radius+degree_spondylolisthesis, method = "svmLinear", varImp.train=TRUE, #support vector
+                   data = training,
+                   trControl = ctrl)
+
 c50_model <- train(class~pelvic_incidence+pelvic_tilt+lumbar_lordosis_angle+
                      sacral_slope+pelvic_radius+degree_spondylolisthesis+(1|cluster), method = "C5.0", varImp.train=TRUE, #C5.0 tree
                    data = training,
@@ -91,7 +99,7 @@ fancyRpartPlot(cart_model$finalModel)
 dev.copy(pdf,'charts/regression-tree-model.pdf')
 dev.off()
 
-plot(nnet_model$finalModel)
+plot(nnet_model$finalModel) 
 dev.copy(pdf,'charts/neural-net-model.pdf')
 dev.off()
 # Create new columns with results from training
@@ -101,7 +109,8 @@ training_results <- training %>%
          Gradient_Boost = predict(gbm_model, training),
          Support_Vector = predict(svm_model, training),
          C50 = predict(c50_model,training),
-         Neural_Net = predict(nnet_model,training))
+         Neural_Net = predict(nnet_model,training),
+         Support_Vector_No = predict(svm_model_no,training))
 
 # Evaluate the performance
 g <- getTrainPerf(cart_model)
@@ -110,9 +119,9 @@ i <- getTrainPerf(gbm_model)
 j <- getTrainPerf(svm_model)
 k <- getTrainPerf(c50_model)
 l <- getTrainPerf(nnet_model)
-
+k <- getTrainPerf(svm_model_no)
 #look at all the training results together
-train_perf <- bind_rows(g,h,i,j,k,l)
+train_perf <- bind_rows(g,h,i,j,k,l,k)
 train_perf %>% arrange(desc(TrainAccuracy))  #results fairly similiar
 
 # Create the new columns in the test set and see how it performs
@@ -122,7 +131,8 @@ testing_results <- testing %>%
          Gradient_Boost = predict(gbm_model, testing),
          Support_Vector = predict(svm_model, testing),
          C50 = predict(c50_model,testing),
-         Neural_Net = predict(nnet_model,testing))
+         Neural_Net = predict(nnet_model,testing),
+         Support_Vector_No = predict(svm_model_no,testing))
 
 #create some metrics to evaluate all results
 f <- function(data,algorithm){
@@ -135,16 +145,18 @@ o <- f(training_results,"Support_Vector")
 p <- f(training_results,"C50")
 q <- f(training_results,"Random_Forest")
 r <- f(training_results,"Neural_Net")
+s <- f(training_results,"Support_Vector_No")
 m1 <- f(testing_results,"Decision_Tree")
 n1 <- f(testing_results,"Gradient_Boost")
 o1 <- f(testing_results,"Support_Vector")
 p1 <- f(testing_results,"C50")
 q1 <- f(testing_results,"Random_Forest")
 r1 <- f(testing_results,"Neural_Net")
-
+s1 <- f(testing_results,"Support_Vector_No")
 #see the train/test kappa (accuracy vs randomness)
-bind_rows(m,n,o,p,q,r,m1,n1,o1,p1,q1,r1) %>% 
-  filter(.metric=="kap") %>% arrange(desc(model))
+models <- bind_rows(m,n,o,p,q,r,m1,n1,o1,p1,q1,r1,s,s1) %>% 
+  filter(.metric=="accuracy") %>% arrange(desc(model)) 
+models %>% write.table("results/all_model_performance.csv")
 #Random Forest & Gradient Boost likely overfit, Support Vector only model that performed better on test than train 
 
 # Take a look at a few confusion matrices
@@ -161,28 +173,32 @@ c <- as.data.frame(a$byClass)
 
 b %>% write.table("results/predictions.csv")
 c %>% write.table("results/model_accuracy.csv")
-#high balanced accuracy
+
+#compare to svm with no fixed effect
+a1 <- confusionMatrix(predict(svm_model_no,testing),
+                     testing$class) #normal predictions much improved from cart, abnormal predictions really strong
+
 
 confusionMatrix(predict(nnet_model,testing),
                 testing$class) #similar results to svm
 
-#Move forward with the support vector machine as our model
+#Move forward with the neural net due to its balaanced accuracy in test/train 
 results <- testing_results %>% 
-  select(-c(Decision_Tree,Random_Forest,Gradient_Boost,Neural_Net,C50)) %>% 
-  dplyr::rename(prediction=Support_Vector)
+  select(-c(Decision_Tree,Random_Forest,Gradient_Boost,C50,Support_Vector,Support_Vector_No)) %>% 
+  dplyr::rename(prediction=Neural_Net)
 
-
+names(results)
 results %>% 
-  gather(key = "type","degrees",1:6)
+  gather(key = "type","degrees",3:8)
+names(results)
 medians <- results %>% 
-  gather("variable", "value",1:6) %>% 
+  gather("variable", "value",3:8) %>% 
   group_by(cluster,prediction,variable) %>% 
   summarize(lower = round(quantile(value, probs = .25),0),
             median = round(quantile(value, probs = .5),0),
             upper = round(quantile(value, probs = .75),0)) %>% 
   arrange(variable) #%>% 
   # gather("quartile","value",3:5) 
-
 medians %>% write_csv('results/results.csv')
 
 #estimate weights of the support vector model
@@ -200,9 +216,11 @@ w1 <- w %>%
 ## set the levels in order we want
 library(ggthemes)
 ## plot
-q <- ggplot(w1, aes(y = reorder(Type, variable_importance), x = variable_importance)) +
-  geom_bar(stat = "identity",fill="gray") + theme_tufte() + 
-  labs(x="Variable Importance",y="Feature")
+q <- ggplot(w1, aes(y = reorder(Type, variable_importance), x = variable_importance),fill=black) + theme_minimal() +
+  geom_bar(stat="identity", position = "dodge") +
+  labs(x="Variable Importance",y="Feature",title="Variable Importance",
+       subtitle="Biomechanical features impacting presence of hernia in orthopedic patients")
 q
 
-ggsave("results/variable_importance.pdf",width=4,height=4)
+ggsave("results/variable_importance.pdf",width=8,height=4)
+
