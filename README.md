@@ -22,8 +22,6 @@ model             training_accuracy test_accuracy difference
 [Median Biomechanics by Person Type](https://github.com/joshorenstein/bio-features-ortho-patients/blob/master/results/results.csv) <br/>
 [Regression Tree](https://github.com/joshorenstein/bio-features-ortho-patients/blob/master/charts/regression-tree-model.pdf) <br/>
 [SVM Variable Importance](https://github.com/joshorenstein/bio-features-ortho-patients/blob/master/results/variable_importance.pdf) <br/>
-[Neural Network](https://github.com/joshorenstein/bio-features-ortho-patients/blob/master/charts/neural-net-model.pdf) <br/>
-
 
 ###### Conclusions:
 * In the supervised algorithms, the best models on predicting the test data were Support Vector Machine, C5.0 and Random Forest. 
