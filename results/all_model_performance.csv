@@ -1,15 +1,8 @@
-".metric" ".estimator" ".estimate" "model"
-"1" "accuracy" "binary" 0.818965517241379 "Support_Vector_No"
-"2" "accuracy" "binary" 0.857142857142857 "Support_Vector_No"
-"3" "accuracy" "binary" 0.823275862068966 "Support_Vector"
-"4" "accuracy" "binary" 0.883116883116883 "Support_Vector"
-"5" "accuracy" "binary" 1 "Random_Forest"
-"6" "accuracy" "binary" 0.87012987012987 "Random_Forest"
-"7" "accuracy" "binary" 0.853448275862069 "Neural_Net"
-"8" "accuracy" "binary" 0.857142857142857 "Neural_Net"
-"9" "accuracy" "binary" 0.887931034482759 "Gradient_Boost"
-"10" "accuracy" "binary" 0.831168831168831 "Gradient_Boost"
-"11" "accuracy" "binary" 0.862068965517241 "Decision_Tree"
-"12" "accuracy" "binary" 0.818181818181818 "Decision_Tree"
-"13" "accuracy" "binary" 1 "C50"
-"14" "accuracy" "binary" 0.87012987012987 "C50"
+model,test,training,diff
+Support_Vector,88.31168831168831,82.32758620689656,5.984102104791759
+C50,87.01298701298701,100,-12.987012987012989
+Random_Forest,87.01298701298701,100,-12.987012987012989
+Neural_Net,85.71428571428571,85.34482758620689,0.3694581280788185
+Support_Vector_No,85.71428571428571,81.89655172413794,3.8177339901477723
+Gradient_Boost,83.11688311688312,88.79310344827587,-5.676220331392756
+Decision_Tree,81.81818181818183,86.20689655172413,-4.388714733542301

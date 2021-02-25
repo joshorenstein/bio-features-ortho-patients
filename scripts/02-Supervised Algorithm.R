@@ -154,9 +154,19 @@ q1 <- f(testing_results,"Random_Forest")
 r1 <- f(testing_results,"Neural_Net")
 s1 <- f(testing_results,"Support_Vector_No")
 #see the train/test kappa (accuracy vs randomness)
-models <- bind_rows(m,n,o,p,q,r,m1,n1,o1,p1,q1,r1,s,s1) %>% 
-  filter(.metric=="accuracy") %>% arrange(desc(model)) 
-models %>% write.table("results/all_model_performance.csv")
+models <- bind_rows(m,n,o,p,q,r,s) %>% filter(.metric=="accuracy")
+m <- as.data.frame(models) %>% mutate(data="training")
+models1 <- bind_rows(m1,n1,o1,p1,q1,r1,s1) %>% filter(.metric=="accuracy")
+m1 <- as.data.frame(models1) %>% mutate(data="test") %>% bind_rows(m) %>% 
+  select(data,model,.estimate) %>% 
+  mutate(.estimate=.estimate*100) %>% 
+  arrange(model,desc(data)) %>% 
+  group_by(model) %>% 
+  spread(data,.estimate) %>% 
+  mutate(diff=test-training) %>% 
+  arrange(desc(test))
+m1 %>% write_csv("results/all_model_performance.csv")
+ 
 #Random Forest & Gradient Boost likely overfit, Support Vector only model that performed better on test than train 
 
 # Take a look at a few confusion matrices
@@ -199,6 +209,7 @@ medians <- results %>%
             upper = round(quantile(value, probs = .75),0)) %>% 
   arrange(variable) #%>% 
   # gather("quartile","value",3:5) 
+
 medians %>% write_csv('results/results.csv')
 
 #estimate weights of the support vector model
